@@ -26,10 +26,21 @@
 
   <!-- Summary cards -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-    <app-summary-card icon="credit_card"    label="Total Loans"   [value]="totalLoans()"   [trend]="3.2" />
-    <app-summary-card icon="schedule"       label="Active Loans"  [value]="activeLoans()"  [trend]="1.8" />
-    <app-summary-card icon="change_history" label="Default Rate"  [value]="defaultRate()"  [trend]="-0.5" suffix="%" />
-    <app-summary-card icon="swap_vert"      label="Avg. Loan Size" [value]="avgLoanSizeFormatted()" [trend]="4.1" />
+    @if (isLoading()) {
+      @for (_ of [1, 2, 3, 4]; track $index) {
+        <div class="bg-surface border border-border rounded-xl px-6 py-5 shadow-sm animate-pulse">
+          <div class="w-10 h-10 rounded-xl bg-border mb-4"></div>
+          <div class="h-2.5 w-20 bg-border rounded mb-3"></div>
+          <div class="h-7 w-24 bg-border rounded mb-3"></div>
+          <div class="h-2.5 w-12 bg-border rounded"></div>
+        </div>
+      }
+    } @else {
+      <app-summary-card icon="credit_card"    label="Total Loans"    [value]="totalLoans()"            [trend]="3.2" />
+      <app-summary-card icon="schedule"       label="Active Loans"   [value]="activeLoans()"           [trend]="1.8" />
+      <app-summary-card icon="change_history" label="Default Rate"   [value]="defaultRate()"           [trend]="-0.5" suffix="%" />
+      <app-summary-card icon="swap_vert"      label="Avg. Loan Size" [value]="avgLoanSizeFormatted()"  [trend]="4.1" />
+    }
   </div>
 
   <!-- Main content — 2-column layout -->

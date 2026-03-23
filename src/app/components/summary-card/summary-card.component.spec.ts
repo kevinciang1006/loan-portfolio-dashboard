@@ -10,6 +10,7 @@ describe('SummaryCardComponent', () => {
     label: string;
     value: string | number;
     trend: number;
+    icon?: string;
     prefix?: string;
     suffix?: string;
   }) {
@@ -18,7 +19,7 @@ describe('SummaryCardComponent', () => {
       providers: [provideZonelessChangeDetection(), provideAnimations()],
     });
     fixture = TestBed.createComponent(SummaryCardComponent);
-    fixture.componentRef.setInput('icon', 'info');
+    fixture.componentRef.setInput('icon', inputs.icon ?? 'info');
     fixture.componentRef.setInput('label', inputs.label);
     fixture.componentRef.setInput('value', inputs.value);
     fixture.componentRef.setInput('trend', inputs.trend);
@@ -73,5 +74,18 @@ describe('SummaryCardComponent', () => {
     createComponent({ label: 'Closed', value: 5, trend: 0 });
     const icon = fixture.nativeElement.querySelector('.trend-icon');
     expect(icon).toBeNull();
+  });
+
+  it('should render the mat-icon when icon is provided', () => {
+    createComponent({ label: 'Total', value: 1, trend: 0, icon: 'credit_card' });
+    const matIcon = fixture.nativeElement.querySelector('mat-icon') as HTMLElement;
+    expect(matIcon).toBeTruthy();
+    expect(matIcon.textContent?.trim()).toBe('credit_card');
+  });
+
+  it('should not render the mat-icon when icon is empty', () => {
+    createComponent({ label: 'Total', value: 1, trend: 0, icon: '' });
+    const matIcon = fixture.nativeElement.querySelector('mat-icon');
+    expect(matIcon).toBeNull();
   });
 });

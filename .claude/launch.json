@@ -2,9 +2,9 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "dev",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start"],
+      "name": "loan-portfolio-dashboard",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "npm start"],
       "port": 4200
     }
   ]

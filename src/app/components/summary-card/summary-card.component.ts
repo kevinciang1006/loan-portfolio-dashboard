@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SummaryCardComponent {
-  icon  = input.required<string>();
+  icon  = input<string>('');
   label = input.required<string>();
   value = input.required<string | number>();
   trend = input.required<number>();

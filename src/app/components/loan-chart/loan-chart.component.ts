@@ -24,7 +24,7 @@ export class LoanChartComponent {
   readonly chartOptions: ChartOptions<'doughnut'> = {
     responsive: true,
     cutout: '65%',
-    // rotation: 160,
+    rotation: 180,
     plugins: { legend: { display: false } },
   };
 

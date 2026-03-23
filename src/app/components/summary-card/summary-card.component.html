@@ -1,10 +1,12 @@
 <div class="bg-surface border border-border rounded-xl px-6 py-5 shadow-sm">
-  <!-- Icon badge -->
-  <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:#dbe9fe">
-    <mat-icon style="font-size:20px;width:20px;height:20px;line-height:20px;color:#1e4ed8">
-      {{ icon() }}
-    </mat-icon>
-  </div>
+  <!-- Icon badge — only rendered when icon input is provided -->
+  @if (icon()) {
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:#dbe9fe">
+      <mat-icon style="font-size:20px;width:20px;height:20px;line-height:20px;color:#1e4ed8">
+        {{ icon() }}
+      </mat-icon>
+    </div>
+  }
 
   <!-- Label — keep .label class as a test hook -->
   <p class="label text-text-muted text-xs font-medium uppercase tracking-widest mb-1">{{ label() }}</p>

@@ -16,7 +16,8 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../components/conf
 import { LoanChartComponent } from '../../components/loan-chart/loan-chart.component';
 import { LoanTableComponent } from '../../components/loan-table/loan-table.component';
 import { SummaryCardComponent } from '../../components/summary-card/summary-card.component';
-import { Loan, MOCK_LOANS } from '../../mock/loans.mock';
+import { Loan } from '../../mock/loans.mock';
+import { LoanService } from '../../services/loan.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -36,10 +37,12 @@ import { Loan, MOCK_LOANS } from '../../mock/loans.mock';
 })
 export class DashboardComponent {
   private readonly dialog = inject(MatDialog);
+  private readonly loanService = inject(LoanService);
 
   readonly searchQuery = signal('');
   readonly isDark = signal(false);
-  readonly localLoans = signal<Loan[]>([...MOCK_LOANS]);
+  readonly isLoading = signal(true);
+  readonly localLoans = signal<Loan[]>([]);
 
   readonly filteredLoans = computed(() => {
     const q = this.searchQuery().toLowerCase();
@@ -93,6 +96,12 @@ export class DashboardComponent {
   });
 
   constructor() {
+    // Load loans from service — swap getLoans() implementation for real HTTP
+    this.loanService.getLoans().subscribe((loans) => {
+      this.localLoans.set(loans);
+      this.isLoading.set(false);
+    });
+
     const saved = localStorage.getItem('theme');
     if (saved === 'dark') {
       this.isDark.set(true);
@@ -110,9 +119,10 @@ export class DashboardComponent {
       { data: { loan } }
     );
     ref.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
-        this.localLoans.update((loans) => loans.filter((l) => l.id !== loan.id));
-      }
+      if (!confirmed) return;
+      // Optimistic update: remove from UI immediately, then confirm with API
+      this.localLoans.update((loans) => loans.filter((l) => l.id !== loan.id));
+      this.loanService.deleteLoan(loan.id).subscribe();
     });
   }
 }
