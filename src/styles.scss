@@ -115,11 +115,14 @@ body {
     tonal-container-shape:     8px,
     text-container-shape:      8px,
 
-    filled-container-height:    36px,
-    outlined-container-height:  36px,
-    protected-container-height: 36px,
-    tonal-container-height:     36px,
-    text-container-height:      36px,
+    filled-container-height:    32px,
+    outlined-container-height:  32px,
+    protected-container-height: 32px,
+    tonal-container-height:     32px,
+    text-container-height:      32px,
+
+    filled-horizontal-padding:    12px,
+    outlined-horizontal-padding: 12px,
   ));
 
   @include mat.form-field-overrides((
@@ -219,7 +222,6 @@ body {
     filled-container-color:    #dc2626,
     filled-label-text-color:   #ffffff,
     filled-state-layer-color:  #ffffff,
-    filled-ripple-color:       #ffffff,
     // outlined (mat-stroked-button)
     outlined-outline-color:    #dc2626,
     outlined-label-text-color: #dc2626,
