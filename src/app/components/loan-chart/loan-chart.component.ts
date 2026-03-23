@@ -14,7 +14,7 @@ export class LoanChartComponent {
   data = input.required<number[]>();
 
   readonly chartLabels = ['Residential', 'Commercial', 'Auto', 'Personal'];
-  readonly chartColors = ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981'];
+  readonly chartColors = ['#639922', '#3789dd', '#ef9e29', '#d3547e'];
 
   chartDatasets: ChartDataset<'doughnut'>[] = [
     { data: [], backgroundColor: this.chartColors, borderWidth: 0 },
@@ -23,6 +23,7 @@ export class LoanChartComponent {
   readonly chartOptions: ChartOptions<'doughnut'> = {
     responsive: true,
     cutout: '65%',
+    // rotation: 160,
     plugins: { legend: { display: false } },
   };
 
@@ -40,6 +41,6 @@ export class LoanChartComponent {
 
   getPercentage(value: number): string {
     const t = this.total;
-    return t ? ((value / t) * 100).toFixed(1) + '%' : '0%';
+    return t ? ((value / t) * 100).toFixed(0) + '%' : '0%';
   }
 }

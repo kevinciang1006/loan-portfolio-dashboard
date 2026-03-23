@@ -1,10 +1,15 @@
+@use '@angular/material' as mat;
+
 :root {
+  /* MDC reads this token before falling back to Roboto — sets Inter for all MDC components */
+  --mdc-typography-font-family: 'Inter', sans-serif;
+
   --color-bg: #edeae5;
   --color-surface: #ffffff;
   --color-surface-alt: #f1f5f9;
   --color-border: #e2e8f0;
   --color-text: #0f172a;
-  --color-text-muted: #64748b;
+  --color-text-muted: #94a2b8;
   --color-primary: #3b82f6;
   --color-primary-hover: #2563eb;
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -30,27 +35,198 @@ body {
   transition: background 0.2s, color 0.2s;
 }
 
-/* Angular Material token overrides */
-.mat-mdc-table {
-  --mat-table-background-color: var(--color-surface);
-  --mat-table-row-item-label-text-color: var(--color-text);
-  --mat-table-header-headline-color: var(--color-text-muted);
+/* Force every element to inherit font — overrides browser/Material hard-coded Roboto */
+*, *::before, *::after {
+  font-family: inherit;
 }
 
-.mdc-dialog__surface {
-  --mdc-dialog-container-color: var(--color-surface) !important;
+/* Anchor the single font on the root so everything cascades from here */
+html {
+  font-family: 'Inter', sans-serif;
 }
 
-.mat-mdc-chip {
-  --mat-chip-label-text-color: var(--color-text);
+/* Belt-and-suspenders: explicitly target the MDC internals that
+   Angular Material stamps with font-family: Roboto */
+.mdc-data-table__cell,
+.mdc-data-table__header-cell,
+.mdc-data-table__header-row,
+.mdc-text-field__input,
+.mdc-list-item__primary-text,
+.mat-mdc-cell,
+.mat-mdc-header-cell,
+.mat-mdc-footer-cell,
+.mat-mdc-paginator,
+.mat-mdc-paginator *,
+.mat-mdc-select-value,
+.mat-mdc-option,
+.mat-sort-header-content,
+.mat-mdc-input-element,
+.mdc-button,
+.mdc-button__label,
+.mat-mdc-button,
+.mat-mdc-outlined-button,
+.mat-mdc-raised-button,
+.mat-mdc-flat-button,
+.mat-mdc-unelevated-button,
+.mdc-dialog__title,
+.mdc-dialog__content,
+.mdc-dialog__actions,
+.mat-mdc-dialog-title,
+.mat-mdc-dialog-content,
+.mat-mdc-dialog-actions,
+.mat-mdc-dialog-surface {
+  font-family: 'Inter', sans-serif !important;
 }
 
-.mat-mdc-paginator {
-  background: var(--color-surface) !important;
-  color: var(--color-text) !important;
+/* Angular Material component overrides — mixin API */
+:root {
+  @include mat.table-overrides((
+    background-color:           var(--color-surface),
+    row-item-label-text-color:  var(--color-text),
+    header-headline-color:      var(--color-text-muted),
+  ));
+
+  @include mat.paginator-overrides((
+    container-background-color: var(--color-surface),
+    container-text-color:       var(--color-text),
+    enabled-icon-color:         var(--color-text-muted),
+  ));
+
+  @include mat.dialog-overrides((
+    container-color:            var(--color-surface),
+    subhead-color:              var(--color-text),
+    supporting-text-color:      var(--color-text-muted),
+  ));
+
+  @include mat.chips-overrides((
+    label-text-color:           var(--color-text),
+    outline-color:              var(--color-border),
+  ));
+
+  @include mat.button-overrides((
+    filled-container-shape:     8px,
+    outlined-container-shape:   8px,
+    protected-container-shape:  8px,
+    tonal-container-shape:      8px,
+    text-container-shape:       8px,
+
+    filled-container-height:     36px,
+    outlined-container-height:   36px,
+    protected-container-height:  36px,
+    tonal-container-height:      36px,
+    text-container-height:       36px,
+  ));
+
+  @include mat.form-field-overrides((
+    outlined-label-text-color:        var(--color-text-muted),
+    outlined-hover-label-text-color:  var(--color-text-muted),
+    outlined-focus-label-text-color:  var(--color-primary),
+    outlined-input-text-color:        var(--color-text),
+    outlined-container-shape:         12px,
+    outlined-input-text-placeholder-color: var(--color-text-muted),
+    outlined-focus-outline-color:    var(--color-text-muted),
+    outlined-outline-color:          var(--color-border),
+    outlined-hover-outline-color:    var(--color-border),
+
+    filled-container-shape:          12px,
+    filled-container-color:          #f9fafc,
+    filled-label-text-color:        var(--color-text-muted),
+    filled-hover-label-text-color:  var(--color-text-muted),
+    filled-focus-label-text-color:  var(--color-text-muted),
+    filled-input-text-color:        var(--color-text),
+    filled-active-indicator-color: var(--color-text-muted),
+    filled-input-text-placeholder-color: var(--color-text-muted),
+    filled-hover-active-indicator-color: var(--color-text-muted),
+    filled-active-indicator-height: 0,
+    filled-focus-active-indicator-height: 0,
+    hover-state-layer-opacity:     0,
+
+    container-height:                32px,
+    container-vertical-padding:       8px,
+  ));
+}
+.mdc-text-field--filled {
+  border-bottom-left-radius: 12px !important;
+  border-bottom-right-radius: 12px !important;
+  border: #e1e7ef 2px solid !important;
 }
 
-.mat-mdc-form-field {
-  --mdc-outlined-text-field-label-text-color: var(--color-text-muted);
-  --mdc-outlined-text-field-input-text-color: var(--color-text);
+/* Slide toggle — compact, no icon, white handle on #9facc1 track */
+:root {
+  @include mat.slide-toggle-overrides((
+    track-height:                    24px,
+    track-width:                     44px,
+    handle-height:                   16px,
+    with-icon-handle-size:           16px,
+    pressed-handle-size:             16px,
+
+    selected-track-color:            #9facc1,
+    unselected-track-color:          #9facc1,
+    selected-hover-track-color:      #8d9aaf,
+    unselected-hover-track-color:    #8d9aaf,
+    selected-focus-track-color:      #9facc1,
+    unselected-focus-track-color:    #9facc1,
+    selected-pressed-track-color:    #9facc1,
+    unselected-pressed-track-color:  #9facc1,
+
+    track-outline-width:             0,
+    track-outline-color:             transparent,
+
+    selected-handle-color:           white,
+    unselected-handle-color:         white,
+    selected-hover-handle-color:     white,
+    unselected-hover-handle-color:   white,
+    selected-focus-handle-color:     white,
+    unselected-focus-handle-color:   white,
+    selected-pressed-handle-color:   white,
+    unselected-pressed-handle-color: white,
+
+    selected-hover-state-layer-opacity:     0,
+    selected-focus-state-layer-opacity:     0,
+    selected-pressed-state-layer-opacity:   0,
+    unselected-hover-state-layer-opacity:   0,
+    unselected-focus-state-layer-opacity:   0,
+    unselected-pressed-state-layer-opacity: 0,
+  ));
+}
+
+/* Icon hiding cannot be done via tokens — requires a selector */
+.mat-mdc-slide-toggle .mdc-switch__icon { display: none; }
+
+/*
+ * Button variants — M3 pattern (color input is M2-only).
+ * Scope mat.button-overrides() to a class instead of :root so only
+ * buttons carrying that class get the overridden tokens.
+ * Use the structural attribute (mat-flat-button / mat-stroked-button)
+ * to pick the shape; use the variant class to pick the color.
+ *
+ * Example usage:
+ *   <button mat-flat-button    class="btn-danger">Delete</button>   ← filled red
+ *   <button mat-stroked-button class="btn-danger">Delete</button>   ← outlined red
+ */
+.btn-danger {
+  @include mat.button-overrides((
+    /* filled (mat-flat-button) */
+    filled-container-color:   #dc2626,
+    filled-label-text-color:  #ffffff,
+    filled-state-layer-color: #ffffff,
+    /* outlined (mat-stroked-button) */
+    outlined-outline-color:    #dc2626,
+    outlined-label-text-color: #dc2626,
+    outlined-state-layer-color: #dc2626,
+    outlined-ripple-color:     #dc26263b,
+  ));
+}
+.btn-muted {
+  @include mat.button-overrides((
+    /* filled (mat-flat-button) */
+    filled-container-color:   #dc2626,
+    filled-label-text-color:  #485468,
+    filled-state-layer-color: #ffffff,
+    /* outlined (mat-stroked-button) */
+    outlined-outline-color:    #94a2b8,
+    outlined-label-text-color: #485468,
+    outlined-state-layer-color: #94a2b8,
+    outlined-ripple-color:     #94a2b83b,
+  ));
 }

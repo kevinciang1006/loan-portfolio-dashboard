@@ -1,11 +1,10 @@
-<h2 mat-dialog-title>Delete loan record?</h2>
-<mat-dialog-content>
-  <p class="text-text-base mb-2">
-    This will permanently remove <strong>{{ data.loan.id }}</strong> from the portfolio.
+<h2 mat-dialog-title class="font-bold! text-xl!">Delete loan record?</h2>
+<mat-dialog-content class="max-w-sm">
+  <p class="text-text-muted text-sm ">
+    This will permanently remove <strong class="text-text-base">{{ data.loan.id }}</strong> from the portfolio. This action cannot be undone.
   </p>
-  <p class="text-text-base mb-0">This action cannot be undone.</p>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-stroked-button (click)="dialogRef.close(false)">Cancel</button>
-  <button mat-flat-button color="warn" (click)="dialogRef.close(true)">Delete</button>
+  <button mat-stroked-button (click)="dialogRef.close(false)" class="btn-muted">Cancel</button>
+  <button mat-flat-button (click)="dialogRef.close(true)" class="btn-danger">Delete</button>
 </mat-dialog-actions>

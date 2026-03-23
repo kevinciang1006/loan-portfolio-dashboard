@@ -6,12 +6,10 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../components/confirm-dialog/confirm-dialog.component';
@@ -24,10 +22,8 @@ import { Loan, MOCK_LOANS } from '../../mock/loans.mock';
   selector: 'app-dashboard',
   imports: [
     FormsModule,
-    CurrencyPipe,
     MatButtonModule,
     MatFormFieldModule,
-    MatIconModule,
     MatInputModule,
     MatSlideToggleModule,
     SummaryCardComponent,
@@ -80,6 +76,13 @@ export class DashboardComponent {
     return Math.round(
       loans.reduce((s, l) => s + l.amount, 0) / loans.length
     );
+  });
+
+  readonly avgLoanSizeFormatted = computed(() => {
+    const v = this.avgLoanSize();
+    if (v >= 1_000_000) return '$' + (v / 1_000_000).toFixed(1) + 'M';
+    if (v >= 1_000)     return '$' + (v / 1_000).toFixed(1) + 'k';
+    return '$' + v;
   });
 
   readonly chartData = computed(() => {

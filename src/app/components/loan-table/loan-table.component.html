@@ -37,9 +37,8 @@
     <td mat-cell *matCellDef="let element">
       <button
         mat-stroked-button
-        color="warn"
+        class="btn-danger !text-xs !min-w-0 !px-3 !h-7"
         (click)="deleteLoan.emit(element)"
-        class="!text-xs !min-w-0 !px-3 !h-7"
       >Delete</button>
     </td>
   </ng-container>
