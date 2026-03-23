@@ -130,43 +130,43 @@ The M3 pattern is to scope `mat.button-overrides()` to a CSS class — same idea
 <button mat-flat-button color="warn">Delete</button>
 ```
 
-## CSS Custom Property Chaining — CRITICAL Dark Mode Gotcha
+## CSS Custom Property Dark Mode — Use `light-dark()`
 
-When `mat.*-overrides()` is called on `:root`, `var(--color-*)` references are
-resolved **at the html element** (where `--color-surface: #ffffff`). That resolved
-value is what children inherit — NOT the raw `var()` reference.
+**The trap:** `--color-surface: #ffffff` is a plain hex. When children inherit
+`--mat-table-background-color: var(--color-surface)` from `:root`, the resolved
+value `#ffffff` is what gets passed down — `body.dark { --color-surface: #1e293b }`
+has zero effect on that already-resolved token.
 
-**Result:** `body.dark { --color-surface: #1e293b }` has no effect on inherited
-Angular Material tokens because the chain locks in at `:root`.
+**The fix:** Use `light-dark()` in custom vars — it's stored as raw CSS function
+text, evaluated lazily at paint time using each element's inherited `color-scheme`:
 
-✅ FIX — also call the color overrides inside `body.dark`:
 ```scss
-// :root block sets light values (and fixed dimensions/shapes):
 :root {
-  @include mat.table-overrides((background-color: var(--color-surface), ...));
+  --color-surface:     light-dark(#ffffff, #1e293b);
+  --color-surface-alt: light-dark(#f1f5f9, #334155);
+  --color-border:      light-dark(#e2e8f0, #334155);
+  --color-text:        light-dark(#0f172a, #f1f5f9);
+  --color-text-muted:  light-dark(#94a2b8, #94a3b8);
+  --color-primary:     light-dark(#3b82f6, #60a5fa);
 }
 
-// body.dark block re-declares color tokens — var() now resolves to dark values:
-body.dark {
-  @include mat.table-overrides((background-color: var(--color-surface), ...));
-  @include mat.paginator-overrides((container-background-color: var(--color-surface), ...));
-  @include mat.dialog-overrides((container-color: var(--color-surface), ...));
-  @include mat.form-field-overrides((filled-container-color: var(--color-surface-alt), ...));
-}
+body.dark { color-scheme: dark; }  // ← only dark-mode line needed
 ```
 
-Dimension/shape tokens (heights, radii) only need to be in `:root` — they're
-mode-independent. Only color tokens need the `body.dark` repetition.
+`light-dark()` flows correctly through `var()` chains into Angular Material tokens
+(e.g. `--mat-table-background-color: var(--color-surface)`) — the same mechanism
+Angular Material itself uses for `--mat-sys-*` variables. Single definition,
+no duplication.
 
 ## When SCSS is allowed
 SCSS files should only contain:
-1. CSS custom properties on `:root` and `body.dark` for theming
-2. Angular Material token overrides via `mat.component-overrides()` mixins
-   (color tokens must appear in BOTH `:root` and `body.dark` — see gotcha above)
-3. Status chip color classes (`.chip--active`, `.chip--default`, etc.)
+1. CSS custom properties on `:root` using `light-dark()` for theming
+2. `body.dark { color-scheme: dark; }` — the only dark-mode rule needed
+3. Angular Material token overrides via `mat.component-overrides()` mixins
+4. Status chip color classes (`.chip--active`, `.chip--default`, etc.)
    because these are dynamic and Tailwind can't purge dynamic class names
-4. `:host` display rules if needed
-5. CSS selector rules that cannot be expressed as tokens (e.g. `display: none` on a child element)
+5. `:host` display rules if needed
+6. CSS selector rules that cannot be expressed as tokens (e.g. `display: none` on a child element)
 
 Every other style must be a Tailwind utility class in the template.
 

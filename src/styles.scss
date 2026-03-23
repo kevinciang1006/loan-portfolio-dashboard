@@ -36,34 +36,28 @@ body.dark {
 
 // ══════════════════════════════════════════════════════════════════════
 // 2. App-level Design Tokens
-//    Used by Tailwind utility classes (bg-surface, text-text-base, etc.)
-//    and as values inside mat.*-overrides() calls below.
+//    Each var uses light-dark(light-value, dark-value).
+//    light-dark() is a CSS color function stored as raw text in the
+//    custom property — it is evaluated lazily at background-color /
+//    color computation time using the element's inherited color-scheme.
+//    This means it flows correctly through CSS custom property chains
+//    (e.g. --mat-table-background-color: var(--color-surface)) without
+//    locking in the light value at :root.
+//    body.dark { color-scheme: dark } is the only switch needed.
 // ══════════════════════════════════════════════════════════════════════
 
 :root {
   --mdc-typography-font-family: 'Inter', sans-serif;
 
-  --color-bg:            #edeae5;
-  --color-surface:       #ffffff;
-  --color-surface-alt:   #f1f5f9;
-  --color-border:        #e2e8f0;
-  --color-text:          #0f172a;
-  --color-text-muted:    #94a2b8;
-  --color-primary:       #3b82f6;
-  --color-primary-hover: #2563eb;
-  --shadow:              0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
-body.dark {
-  --color-bg:            #0f172a;
-  --color-surface:       #1e293b;
-  --color-surface-alt:   #334155;
-  --color-border:        #334155;
-  --color-text:          #f1f5f9;
-  --color-text-muted:    #94a3b8;
-  --color-primary:       #60a5fa;
-  --color-primary-hover: #3b82f6;
-  --shadow:              0 1px 3px rgba(0, 0, 0, 0.3);
+  --color-bg:            light-dark(#edeae5, #0f172a);
+  --color-surface:       light-dark(#ffffff, #1e293b);
+  --color-surface-alt:   light-dark(#f1f5f9, #334155);
+  --color-border:        light-dark(#e2e8f0, #334155);
+  --color-text:          light-dark(#0f172a, #f1f5f9);
+  --color-text-muted:    light-dark(#94a2b8, #94a3b8);
+  --color-primary:       light-dark(#3b82f6, #60a5fa);
+  --color-primary-hover: light-dark(#2563eb, #3b82f6);
+  --shadow:              0 1px 3px light-dark(rgba(0,0,0,0.08), rgba(0,0,0,0.3));
 }
 
 body {
@@ -74,15 +68,12 @@ body {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-// 3. Per-Component Customizations — Light mode (default)
-//    mat.*-overrides() sets component-level CSS variables.
-//
-//    IMPORTANT: CSS custom property chaining locks in the resolved value
-//    at the definition scope. `--mat-table-background-color: var(--color-surface)`
-//    on :root resolves to #ffffff (light) and that resolved value is
-//    inherited — NOT the raw var() reference.
-//    The body.dark block below re-declares the same overrides so they
-//    are evaluated in the dark context where --color-* = dark values.
+// 3. Per-Component Customizations
+//    mat.*-overrides() sets component-level CSS variables on top of the
+//    system tokens defined by mat.theme() above.
+//    Because our --color-* vars use light-dark(), they are stored as raw
+//    CSS function text and evaluated lazily at paint time — not locked in
+//    at :root. So a single :root block handles both modes automatically.
 // ══════════════════════════════════════════════════════════════════════
 
 :root {
@@ -195,60 +186,6 @@ body {
     unselected-hover-state-layer-opacity:   0,
     unselected-focus-state-layer-opacity:   0,
     unselected-pressed-state-layer-opacity: 0,
-  ));
-}
-
-// ══════════════════════════════════════════════════════════════════════
-// 3b. Per-Component Customizations — Dark mode overrides
-//     Re-declare all color tokens inside body.dark so var(--color-*)
-//     substitutions are evaluated in the dark context (#1e293b, etc.)
-//     rather than the :root/html context (#ffffff, etc.).
-//     Dimension/shape tokens are omitted — they're mode-independent.
-// ══════════════════════════════════════════════════════════════════════
-
-body.dark {
-  @include mat.table-overrides((
-    background-color:          var(--color-surface),
-    row-item-label-text-color: var(--color-text),
-    row-item-outline-color:    var(--color-border),
-    header-headline-color:     var(--color-text-muted),
-  ));
-
-  @include mat.paginator-overrides((
-    container-background-color: var(--color-surface),
-    container-text-color:       var(--color-text),
-    enabled-icon-color:         var(--color-text-muted),
-  ));
-
-  @include mat.dialog-overrides((
-    container-color:       var(--color-surface),
-    subhead-color:         var(--color-text),
-    supporting-text-color: var(--color-text-muted),
-  ));
-
-  @include mat.chips-overrides((
-    label-text-color: var(--color-text),
-    outline-color:    var(--color-border),
-  ));
-
-  @include mat.form-field-overrides((
-    outlined-label-text-color:             var(--color-text-muted),
-    outlined-hover-label-text-color:       var(--color-text-muted),
-    outlined-focus-label-text-color:       var(--color-primary),
-    outlined-input-text-color:             var(--color-text),
-    outlined-input-text-placeholder-color: var(--color-text-muted),
-    outlined-outline-color:                var(--color-border),
-    outlined-hover-outline-color:          var(--color-border),
-    outlined-focus-outline-color:          var(--color-text-muted),
-
-    filled-container-color:                var(--color-surface-alt),
-    filled-label-text-color:               var(--color-text-muted),
-    filled-hover-label-text-color:         var(--color-text-muted),
-    filled-focus-label-text-color:         var(--color-text-muted),
-    filled-input-text-color:               var(--color-text),
-    filled-input-text-placeholder-color:   var(--color-text-muted),
-    filled-active-indicator-color:         var(--color-text-muted),
-    filled-hover-active-indicator-color:   var(--color-text-muted),
   ));
 }
 
