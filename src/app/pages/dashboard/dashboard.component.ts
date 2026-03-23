@@ -16,7 +16,7 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../components/conf
 import { LoanChartComponent } from '../../components/loan-chart/loan-chart.component';
 import { LoanTableComponent } from '../../components/loan-table/loan-table.component';
 import { SummaryCardComponent } from '../../components/summary-card/summary-card.component';
-import { Loan } from '../../mock/loans.mock';
+import { Loan, LoanType, LoanTypeStat, LOAN_TYPE_CONFIG } from '../../models/loan.model';
 import { LoanService } from '../../services/loan.service';
 
 @Component({
@@ -58,7 +58,7 @@ export class DashboardComponent {
   readonly totalLoans = computed(() => this.filteredLoans().length);
 
   readonly activeLoans = computed(
-    () => this.filteredLoans().filter((l) => l.status === 'Active').length
+    () => this.filteredLoans().filter((l) => l.status === 'active').length
   );
 
   readonly defaultRate = computed(() => {
@@ -66,7 +66,7 @@ export class DashboardComponent {
     if (!loans.length) return 0;
     return (
       Math.round(
-        (loans.filter((l) => l.status === 'Default').length / loans.length) *
+        (loans.filter((l) => l.status === 'default').length / loans.length) *
           100 *
           10
       ) / 10
@@ -88,11 +88,14 @@ export class DashboardComponent {
     return '$' + v;
   });
 
-  readonly chartData = computed(() => {
+  readonly chartData = computed<LoanTypeStat[]>(() => {
     const loans = this.filteredLoans();
-    return (['Residential', 'Commercial', 'Auto', 'Personal'] as const).map(
-      (t) => loans.filter((l) => l.type === t).length
-    );
+    // Object.keys preserves the declaration order in LOAN_TYPE_CONFIG,
+    // so chart order is controlled by the config, not this component.
+    return (Object.keys(LOAN_TYPE_CONFIG) as LoanType[]).map(type => ({
+      type,
+      count: loans.filter(l => l.type === type).length,
+    }));
   });
 
   constructor() {

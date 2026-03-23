@@ -1,12 +1,6 @@
-export interface Loan {
-  id: string;
-  borrower: string;
-  amount: number;
-  rate: number;
-  status: 'Active' | 'Closed' | 'Default' | 'Review';
-  date: string;
-  type: 'Residential' | 'Commercial' | 'Auto' | 'Personal';
-}
+import { Loan, LoanStatus, LoanType } from '../models/loan.model';
+
+export type { Loan }; // re-export for backwards-compat imports
 
 // Seeded LCG — deterministic, no external deps
 function mkRng(seed: number) {
@@ -36,18 +30,18 @@ function generateLoans(): Loan[] {
   // Total: 1,247 | Active: 984 | Default: 30 (~2.4%) | Closed: 150 | Review: 83
   // Type:  Residential 499 (40%) | Commercial 436 (35%) | Auto 187 (15%) | Personal 125 (10%)
 
-  const statuses: Array<Loan['status']> = [
-    ...Array<Loan['status']>(984).fill('Active'),
-    ...Array<Loan['status']>(30).fill('Default'),
-    ...Array<Loan['status']>(150).fill('Closed'),
-    ...Array<Loan['status']>(83).fill('Review'),
+  const statuses: LoanStatus[] = [
+    ...Array<LoanStatus>(984).fill('active'),
+    ...Array<LoanStatus>(30).fill('default'),
+    ...Array<LoanStatus>(150).fill('closed'),
+    ...Array<LoanStatus>(83).fill('review'),
   ];
 
-  const types: Array<Loan['type']> = [
-    ...Array<Loan['type']>(499).fill('Residential'),
-    ...Array<Loan['type']>(436).fill('Commercial'),
-    ...Array<Loan['type']>(187).fill('Auto'),
-    ...Array<Loan['type']>(125).fill('Personal'),
+  const types: LoanType[] = [
+    ...Array<LoanType>(499).fill('residential'),
+    ...Array<LoanType>(436).fill('commercial'),
+    ...Array<LoanType>(187).fill('auto'),
+    ...Array<LoanType>(125).fill('personal'),
   ];
 
   shuffle(statuses, rng);
@@ -85,26 +79,26 @@ function generateLoans(): Loan[] {
     let rate: number;
 
     switch (type) {
-      case 'Residential':
+      case 'residential':
         amount = Math.round((186000 + rng() * 510000) / 500) * 500;
         rate   = Math.round((3.25 + rng() * 4.75) * 100) / 100;
         break;
-      case 'Commercial':
+      case 'commercial':
         amount = Math.round((100000 + rng() * 380000) / 1000) * 1000;
         rate   = Math.round((4.00 + rng() * 5.50) * 100) / 100;
         break;
-      case 'Auto':
+      case 'auto':
         amount = Math.round((12000 + rng() * 52000) / 500) * 500;
         rate   = Math.round((4.50 + rng() * 7.50) * 100) / 100;
         break;
-      case 'Personal':
+      case 'personal':
       default:
         amount = Math.round((5000 + rng() * 100000) / 500) * 500;
         rate   = Math.round((6.00 + rng() * 10.00) * 100) / 100;
         break;
     }
 
-    const borrower = type === 'Commercial'
+    const borrower = type === 'commercial'
       ? pick(companies, rng)
       : `${pick(firstNames, rng)} ${pick(lastNames, rng)}`;
 

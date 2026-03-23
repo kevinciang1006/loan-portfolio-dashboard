@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, effect, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, input } from '@angular/core';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { ChartDataset, ChartOptions } from 'chart.js';
+import { LOAN_TYPE_CONFIG, LoanTypeStat } from '../../models/loan.model';
 
 @Component({
   selector: 'app-loan-chart',
@@ -11,14 +12,26 @@ import { ChartDataset, ChartOptions } from 'chart.js';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoanChartComponent {
-  data       = input.required<number[]>();
+  /**
+   * One entry per loan type, as produced by the dashboard aggregation.
+   * If a real backend delivers GET /api/loans/stats, swap the dashboard
+   * aggregation with a service call — this component needs no changes.
+   */
+  data       = input.required<LoanTypeStat[]>();
   totalCount = input.required<number>();
 
-  readonly chartLabels = ['Residential', 'Commercial', 'Auto', 'Personal'];
-  readonly chartColors = ['#639922', '#3789dd', '#ef9e29', '#d3547e'];
+  /** Display labels derived from LOAN_TYPE_CONFIG — single source of truth. */
+  readonly chartLabels = computed(() =>
+    this.data().map(s => LOAN_TYPE_CONFIG[s.type].label)
+  );
+
+  /** Chart colours derived from LOAN_TYPE_CONFIG — adding a type only needs a config entry. */
+  readonly chartColors = computed(() =>
+    this.data().map(s => LOAN_TYPE_CONFIG[s.type].color)
+  );
 
   chartDatasets: ChartDataset<'doughnut'>[] = [
-    { data: [], backgroundColor: this.chartColors, borderWidth: 0 },
+    { data: [], backgroundColor: [], borderWidth: 0 },
   ];
 
   readonly chartOptions: ChartOptions<'doughnut'> = {
@@ -30,14 +43,16 @@ export class LoanChartComponent {
 
   constructor() {
     effect(() => {
-      this.chartDatasets = [
-        { data: [...this.data()], backgroundColor: this.chartColors, borderWidth: 0 },
-      ];
+      this.chartDatasets = [{
+        data:            this.data().map(s => s.count),
+        backgroundColor: this.chartColors(),
+        borderWidth:     0,
+      }];
     });
   }
 
   get total(): number {
-    return this.data().reduce((a, b) => a + b, 0);
+    return this.data().reduce((sum, s) => sum + s.count, 0);
   }
 
   /** Percentage of the current (filtered) set relative to the full portfolio. */
@@ -47,8 +62,8 @@ export class LoanChartComponent {
     return Math.round((this.total / grand) * 100) + '%';
   }
 
-  getPercentage(value: number): string {
+  getPercentage(count: number): string {
     const t = this.total;
-    return t ? ((value / t) * 100).toFixed(0) + '%' : '0%';
+    return t ? Math.round((count / t) * 100) + '%' : '0%';
   }
 }

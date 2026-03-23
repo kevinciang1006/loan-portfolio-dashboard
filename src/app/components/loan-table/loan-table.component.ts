@@ -13,7 +13,7 @@ import { MatPaginatorModule, MatPaginator, MatPaginatorIntl } from '@angular/mat
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CurrencyPipe } from '@angular/common';
-import { Loan } from '../../mock/loans.mock';
+import { Loan, LoanStatus, LOAN_STATUS_CONFIG } from '../../models/loan.model';
 
 function customPaginatorIntl(): MatPaginatorIntl {
   const intl = new MatPaginatorIntl();
@@ -38,6 +38,11 @@ export class LoanTableComponent implements AfterViewInit {
 
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  /** Maps a backend status key to its display label. */
+  statusLabel(status: LoanStatus): string {
+    return LOAN_STATUS_CONFIG[status].label;
+  }
 
   displayedColumns = ['id', 'borrower', 'amount', 'rate', 'status', 'date', 'actions'];
   dataSource = new MatTableDataSource<Loan>([]);

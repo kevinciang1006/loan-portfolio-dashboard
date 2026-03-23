@@ -3,27 +3,27 @@
 
   <div class="flex justify-center items-center gap-8 flex-wrap">
 
-    <!-- Doughnut canvas with centered total -->
+    <!-- Doughnut canvas with centered coverage percentage -->
     <div class="relative w-[180px] h-[180px] shrink-0">
       <canvas baseChart
         [datasets]="chartDatasets"
-        [labels]="chartLabels"
+        [labels]="chartLabels()"
         [options]="chartOptions"
         type="doughnut">
       </canvas>
       <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
         <span class="block text-[1.75rem] font-bold text-text-base">{{ coveragePercent }}</span>
-        <span class="block text-xs text-text-muted">{{ chartLabels.length }} types</span>
+        <span class="block text-xs text-text-muted">{{ chartLabels().length }} types</span>
       </div>
     </div>
 
-    <!-- Legend — 2×2 grid -->
+    <!-- Legend — each entry driven by LOAN_TYPE_CONFIG via chartLabels/chartColors -->
     <div class="grid grid-cols-2 gap-x-6 gap-y-2.5">
-      @for (label of chartLabels; track label; let i = $index) {
+      @for (stat of data(); track stat.type; let i = $index) {
         <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full shrink-0" [style.background]="chartColors[i]"></span>
-          <span class="text-sm text-text-base">{{ label }}</span>
-          <span class="text-sm text-text-muted font-semibold">{{ getPercentage(data()[i]) }}</span>
+          <span class="w-2.5 h-2.5 rounded-full shrink-0" [style.background]="chartColors()[i]"></span>
+          <span class="text-sm text-text-base">{{ chartLabels()[i] }}</span>
+          <span class="text-sm text-text-muted font-semibold">{{ getPercentage(stat.count) }}</span>
         </div>
       }
     </div>

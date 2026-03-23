@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
-import { Loan, MOCK_LOANS } from '../mock/loans.mock';
+import { Loan } from '../models/loan.model';
+import { MOCK_LOANS } from '../mock/loans.mock';
 
 /**
  * LoanService — data access layer for loan records.
