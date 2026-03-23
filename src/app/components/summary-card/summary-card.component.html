@@ -1,0 +1,31 @@
+<div class="bg-surface border border-border rounded-2xl px-6 py-5 shadow-sm">
+  <!-- Icon badge -->
+  <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center mb-4">
+    <mat-icon style="font-size:20px;width:20px;height:20px;line-height:20px" class="text-blue-500">
+      {{ icon() }}
+    </mat-icon>
+  </div>
+
+  <!-- Label — keep .label class as a test hook -->
+  <p class="label text-text-muted text-xs font-medium uppercase tracking-widest mb-1">{{ label() }}</p>
+
+  <!-- Value — keep .value class as a test hook -->
+  <p class="value text-text-base text-[1.75rem] font-bold leading-tight mb-2">
+    {{ prefix() }}{{ value() }}{{ suffix() }}
+  </p>
+
+  <!-- Trend — keep .trend / .positive / .negative as test hooks -->
+  <div
+    class="trend flex items-center gap-0.5 text-xs font-medium"
+    [class.positive]="trend() > 0"
+    [class.negative]="trend() < 0"
+    [class.text-green-500]="trend() > 0"
+    [class.text-red-500]="trend() < 0"
+    [class.text-text-muted]="trend() === 0"
+  >
+    @if (trend() !== 0) {
+      <span class="trend-icon">{{ trend() > 0 ? '▲' : '▼' }}</span>
+      <span>{{ trend() > 0 ? '+' : '' }}{{ trend() }}%</span>
+    }
+  </div>
+</div>

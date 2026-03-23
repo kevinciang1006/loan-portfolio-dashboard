@@ -1,0 +1,89 @@
+<div class="max-w-[1200px] mx-auto px-4 pt-6 pb-12 flex flex-col gap-6">
+
+  <!-- Top bar -->
+  <header class="flex items-center justify-between px-1">
+    <h1 class="text-text-base text-2xl font-bold m-0">Loan Portfolio Dashboard</h1>
+    <div class="flex items-center gap-2.5">
+      <span
+        class="text-sm transition-colors"
+        [class.text-text-base]="!isDark()"
+        [class.font-semibold]="!isDark()"
+        [class.text-text-muted]="isDark()"
+      >Light</span>
+      <mat-slide-toggle
+        [checked]="isDark()"
+        (change)="isDark.set($event.checked)"
+        aria-label="Toggle dark mode"
+      />
+      <span
+        class="text-sm transition-colors"
+        [class.text-text-base]="isDark()"
+        [class.font-semibold]="isDark()"
+        [class.text-text-muted]="!isDark()"
+      >Dark</span>
+    </div>
+  </header>
+
+  <!-- Summary cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <app-summary-card icon="credit_card"    label="Total Loans"   [value]="totalLoans()"   [trend]="3.2" />
+    <app-summary-card icon="schedule"       label="Active Loans"  [value]="activeLoans()"  [trend]="1.5" />
+    <app-summary-card icon="change_history" label="Default Rate"  [value]="defaultRate()"  [trend]="-0.8" suffix="%" />
+    <app-summary-card icon="swap_vert"      label="Avg. Loan Size"
+      [value]="(avgLoanSize() | currency: 'USD' : 'symbol' : '1.0-0') ?? ''"
+      [trend]="2.1"
+    />
+  </div>
+
+  <!-- Main content — 2-column layout -->
+  <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 items-start">
+
+    <!-- Left: Loan Records card -->
+    <div class="bg-surface border border-border rounded-2xl shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-border">
+        <p class="text-text-muted text-xs font-semibold uppercase tracking-widest m-0">Loan Records</p>
+      </div>
+
+      <div class="px-6 pt-4 pb-2">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-icon matPrefix>search</mat-icon>
+          <input
+            matInput
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+            placeholder="Search by name, ID..."
+          />
+        </mat-form-field>
+      </div>
+
+      <app-loan-table [loans]="filteredLoans()" (deleteLoan)="openDeleteDialog($event)" />
+    </div>
+
+    <!-- Right column -->
+    <div class="flex flex-col gap-6">
+
+      <!-- Chart -->
+      <app-loan-chart [data]="chartData()" />
+
+      <!-- Confirm Dialog Preview -->
+      <div class="bg-surface border border-border rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-border">
+          <p class="text-text-muted text-xs font-semibold uppercase tracking-widest m-0">Confirm Dialog Preview</p>
+        </div>
+        <div class="p-6">
+          <p class="text-text-base text-base font-bold mb-3">Delete loan record?</p>
+          <p class="text-text-muted text-sm mb-4">
+            This will permanently remove <strong class="text-text-base">LN-0041</strong> from the portfolio.
+            This action cannot be undone.
+          </p>
+          <div class="flex justify-end gap-2">
+            <button mat-stroked-button>Cancel</button>
+            <button mat-flat-button color="warn">Delete</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

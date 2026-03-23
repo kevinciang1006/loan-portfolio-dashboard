@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+/* Map CSS custom properties to Tailwind color tokens.
+   `inline` means Tailwind emits these as literal var() references,
+   so bg-surface / text-text-base / border-border etc. all react
+   to the :root / body.dark CSS variable switches at runtime. */
+@theme inline {
+  --color-surface:    var(--color-surface);
+  --color-surface-alt: var(--color-surface-alt);
+  --color-border:     var(--color-border);
+  --color-text-base:  var(--color-text);
+  --color-text-muted: var(--color-text-muted);
+  --color-primary:    var(--color-primary);
+}

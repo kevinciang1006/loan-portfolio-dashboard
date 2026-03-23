@@ -1,0 +1,56 @@
+:root {
+  --color-bg: #edeae5;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+body.dark {
+  --color-bg: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-alt: #334155;
+  --color-border: #334155;
+  --color-text: #f1f5f9;
+  --color-text-muted: #94a3b8;
+  --color-primary: #60a5fa;
+  --color-primary-hover: #3b82f6;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* Angular Material token overrides */
+.mat-mdc-table {
+  --mat-table-background-color: var(--color-surface);
+  --mat-table-row-item-label-text-color: var(--color-text);
+  --mat-table-header-headline-color: var(--color-text-muted);
+}
+
+.mdc-dialog__surface {
+  --mdc-dialog-container-color: var(--color-surface) !important;
+}
+
+.mat-mdc-chip {
+  --mat-chip-label-text-color: var(--color-text);
+}
+
+.mat-mdc-paginator {
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+}
+
+.mat-mdc-form-field {
+  --mdc-outlined-text-field-label-text-color: var(--color-text-muted);
+  --mdc-outlined-text-field-input-text-color: var(--color-text);
+}

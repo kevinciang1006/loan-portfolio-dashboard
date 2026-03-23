@@ -1,0 +1,32 @@
+<div class="bg-surface border border-border rounded-2xl p-6 shadow-sm">
+  <p class="text-text-muted text-xs font-semibold uppercase tracking-widest mb-5">Loan Distribution</p>
+
+  <div class="flex items-center gap-8 flex-wrap">
+
+    <!-- Doughnut canvas with centered total -->
+    <div class="relative w-[180px] h-[180px] shrink-0">
+      <canvas baseChart
+        [datasets]="chartDatasets"
+        [labels]="chartLabels"
+        [options]="chartOptions"
+        type="doughnut">
+      </canvas>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+        <span class="block text-[1.75rem] font-bold text-text-base">{{ total }}</span>
+        <span class="block text-xs text-text-muted">{{ chartLabels.length }} types</span>
+      </div>
+    </div>
+
+    <!-- Legend — 2×2 grid -->
+    <div class="grid grid-cols-2 gap-x-6 gap-y-2.5">
+      @for (label of chartLabels; track label; let i = $index) {
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full shrink-0" [style.background]="chartColors[i]"></span>
+          <span class="text-sm text-text-base">{{ label }}</span>
+          <span class="text-sm text-text-muted font-semibold">{{ getPercentage(data()[i]) }}</span>
+        </div>
+      }
+    </div>
+
+  </div>
+</div>
