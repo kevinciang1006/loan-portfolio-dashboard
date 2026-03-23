@@ -11,7 +11,8 @@ import { ChartDataset, ChartOptions } from 'chart.js';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoanChartComponent {
-  data = input.required<number[]>();
+  data       = input.required<number[]>();
+  totalCount = input.required<number>();
 
   readonly chartLabels = ['Residential', 'Commercial', 'Auto', 'Personal'];
   readonly chartColors = ['#639922', '#3789dd', '#ef9e29', '#d3547e'];
@@ -37,6 +38,13 @@ export class LoanChartComponent {
 
   get total(): number {
     return this.data().reduce((a, b) => a + b, 0);
+  }
+
+  /** Percentage of the current (filtered) set relative to the full portfolio. */
+  get coveragePercent(): string {
+    const grand = this.totalCount();
+    if (!grand) return '0%';
+    return Math.round((this.total / grand) * 100) + '%';
   }
 
   getPercentage(value: number): string {

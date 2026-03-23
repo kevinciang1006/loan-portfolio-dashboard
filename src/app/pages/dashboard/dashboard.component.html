@@ -57,7 +57,7 @@
     <div class="flex flex-col gap-6">
 
       <!-- Chart -->
-      <app-loan-chart [data]="chartData()" />
+      <app-loan-chart [data]="chartData()" [totalCount]="localLoans().length" />
 
       <!-- Confirm Dialog Preview -->
       <div class="bg-surface border border-border rounded-2xl shadow-sm overflow-hidden">

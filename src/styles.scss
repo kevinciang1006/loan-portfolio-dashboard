@@ -1,176 +1,184 @@
 @use '@angular/material' as mat;
 
+// ══════════════════════════════════════════════════════════════════════
+// 1. Angular Material M3 Theme — v19+ API
+//    Docs: https://material.angular.dev/guide/theming
+//
+//    mat.theme() emits --mat-sys-* CSS variables using the CSS
+//    light-dark() function so both modes are encoded in a single call.
+//    Switching color-scheme to 'dark' on a scope selector flips all
+//    light-dark() values to their dark variant — no all-component-themes()
+//    or all-component-colors() needed.
+// ══════════════════════════════════════════════════════════════════════
+
+html {
+  // Default to light mode; body.dark will override to dark below.
+  color-scheme: light;
+
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+    ),
+    typography: (
+      plain-family: 'Inter',
+      brand-family: 'Inter',
+    ),
+    density: 0,
+  ));
+}
+
+// Flip all light-dark() values to their dark variants for everything
+// inside body when the .dark class is present.
+body.dark {
+  color-scheme: dark;
+}
+
+
+// ══════════════════════════════════════════════════════════════════════
+// 2. App-level Design Tokens
+//    Used by Tailwind utility classes (bg-surface, text-text-base, etc.)
+//    and as values inside mat.*-overrides() calls below.
+// ══════════════════════════════════════════════════════════════════════
+
 :root {
-  /* MDC reads this token before falling back to Roboto — sets Inter for all MDC components */
   --mdc-typography-font-family: 'Inter', sans-serif;
 
-  --color-bg: #edeae5;
-  --color-surface: #ffffff;
-  --color-surface-alt: #f1f5f9;
-  --color-border: #e2e8f0;
-  --color-text: #0f172a;
-  --color-text-muted: #94a2b8;
-  --color-primary: #3b82f6;
+  --color-bg:            #edeae5;
+  --color-surface:       #ffffff;
+  --color-surface-alt:   #f1f5f9;
+  --color-border:        #e2e8f0;
+  --color-text:          #0f172a;
+  --color-text-muted:    #94a2b8;
+  --color-primary:       #3b82f6;
   --color-primary-hover: #2563eb;
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow:              0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 body.dark {
-  --color-bg: #0f172a;
-  --color-surface: #1e293b;
-  --color-surface-alt: #334155;
-  --color-border: #334155;
-  --color-text: #f1f5f9;
-  --color-text-muted: #94a3b8;
-  --color-primary: #60a5fa;
+  --color-bg:            #0f172a;
+  --color-surface:       #1e293b;
+  --color-surface-alt:   #334155;
+  --color-border:        #334155;
+  --color-text:          #f1f5f9;
+  --color-text-muted:    #94a3b8;
+  --color-primary:       #60a5fa;
   --color-primary-hover: #3b82f6;
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow:              0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 body {
   background: var(--color-bg);
-  color: var(--color-text);
-  margin: 0;
-  font-family: 'Inter', sans-serif;
+  color:      var(--color-text);
+  margin:     0;
   transition: background 0.2s, color 0.2s;
 }
 
-/* Force every element to inherit font — overrides browser/Material hard-coded Roboto */
-*, *::before, *::after {
-  font-family: inherit;
-}
+// ══════════════════════════════════════════════════════════════════════
+// 3. Per-Component Customizations — Light mode (default)
+//    mat.*-overrides() sets component-level CSS variables.
+//
+//    IMPORTANT: CSS custom property chaining locks in the resolved value
+//    at the definition scope. `--mat-table-background-color: var(--color-surface)`
+//    on :root resolves to #ffffff (light) and that resolved value is
+//    inherited — NOT the raw var() reference.
+//    The body.dark block below re-declares the same overrides so they
+//    are evaluated in the dark context where --color-* = dark values.
+// ══════════════════════════════════════════════════════════════════════
 
-/* Anchor the single font on the root so everything cascades from here */
-html {
-  font-family: 'Inter', sans-serif;
-}
-
-/* Belt-and-suspenders: explicitly target the MDC internals that
-   Angular Material stamps with font-family: Roboto */
-.mdc-data-table__cell,
-.mdc-data-table__header-cell,
-.mdc-data-table__header-row,
-.mdc-text-field__input,
-.mdc-list-item__primary-text,
-.mat-mdc-cell,
-.mat-mdc-header-cell,
-.mat-mdc-footer-cell,
-.mat-mdc-paginator,
-.mat-mdc-paginator *,
-.mat-mdc-select-value,
-.mat-mdc-option,
-.mat-sort-header-content,
-.mat-mdc-input-element,
-.mdc-button,
-.mdc-button__label,
-.mat-mdc-button,
-.mat-mdc-outlined-button,
-.mat-mdc-raised-button,
-.mat-mdc-flat-button,
-.mat-mdc-unelevated-button,
-.mdc-dialog__title,
-.mdc-dialog__content,
-.mdc-dialog__actions,
-.mat-mdc-dialog-title,
-.mat-mdc-dialog-content,
-.mat-mdc-dialog-actions,
-.mat-mdc-dialog-surface {
-  font-family: 'Inter', sans-serif !important;
-}
-
-/* Angular Material component overrides — mixin API */
 :root {
   @include mat.table-overrides((
     background-color:           var(--color-surface),
     row-item-label-text-color:  var(--color-text),
+    row-item-outline-color:     var(--color-border),
     header-headline-color:      var(--color-text-muted),
+    header-container-height:    36px,
+    row-item-container-height:  36px,
+    footer-container-height:    32px,
   ));
 
   @include mat.paginator-overrides((
-    container-background-color: var(--color-surface),
-    container-text-color:       var(--color-text),
-    enabled-icon-color:         var(--color-text-muted),
+    container-background-color:            var(--color-surface),
+    container-text-color:                  var(--color-text),
+    enabled-icon-color:                    var(--color-text-muted),
+    container-size:                        48px,
+    form-field-container-height:           32px,
+    form-field-container-vertical-padding: 4px,
   ));
 
   @include mat.dialog-overrides((
-    container-color:            var(--color-surface),
-    subhead-color:              var(--color-text),
-    supporting-text-color:      var(--color-text-muted),
+    container-color:       var(--color-surface),
+    subhead-color:         var(--color-text),
+    supporting-text-color: var(--color-text-muted),
+    container-shape:       12px,
   ));
 
   @include mat.chips-overrides((
-    label-text-color:           var(--color-text),
-    outline-color:              var(--color-border),
+    label-text-color: var(--color-text),
+    outline-color:    var(--color-border),
   ));
 
   @include mat.button-overrides((
-    filled-container-shape:     8px,
-    outlined-container-shape:   8px,
-    protected-container-shape:  8px,
-    tonal-container-shape:      8px,
-    text-container-shape:       8px,
+    filled-container-shape:    8px,
+    outlined-container-shape:  8px,
+    protected-container-shape: 8px,
+    tonal-container-shape:     8px,
+    text-container-shape:      8px,
 
-    filled-container-height:     36px,
-    outlined-container-height:   36px,
-    protected-container-height:  36px,
-    tonal-container-height:      36px,
-    text-container-height:       36px,
+    filled-container-height:    36px,
+    outlined-container-height:  36px,
+    protected-container-height: 36px,
+    tonal-container-height:     36px,
+    text-container-height:      36px,
   ));
 
   @include mat.form-field-overrides((
-    outlined-label-text-color:        var(--color-text-muted),
-    outlined-hover-label-text-color:  var(--color-text-muted),
-    outlined-focus-label-text-color:  var(--color-primary),
-    outlined-input-text-color:        var(--color-text),
-    outlined-container-shape:         12px,
+    // Outlined variant
+    outlined-label-text-color:             var(--color-text-muted),
+    outlined-hover-label-text-color:       var(--color-text-muted),
+    outlined-focus-label-text-color:       var(--color-primary),
+    outlined-input-text-color:             var(--color-text),
     outlined-input-text-placeholder-color: var(--color-text-muted),
-    outlined-focus-outline-color:    var(--color-text-muted),
-    outlined-outline-color:          var(--color-border),
-    outlined-hover-outline-color:    var(--color-border),
+    outlined-outline-color:                var(--color-border),
+    outlined-hover-outline-color:          var(--color-border),
+    outlined-focus-outline-color:          var(--color-text-muted),
+    outlined-container-shape:              12px,
 
-    filled-container-shape:          12px,
-    filled-container-color:          #f9fafc,
-    filled-label-text-color:        var(--color-text-muted),
-    filled-hover-label-text-color:  var(--color-text-muted),
-    filled-focus-label-text-color:  var(--color-text-muted),
-    filled-input-text-color:        var(--color-text),
-    filled-active-indicator-color: var(--color-text-muted),
-    filled-input-text-placeholder-color: var(--color-text-muted),
-    filled-hover-active-indicator-color: var(--color-text-muted),
-    filled-active-indicator-height: 0,
-    filled-focus-active-indicator-height: 0,
-    hover-state-layer-opacity:     0,
+    // Filled variant
+    filled-container-color:                var(--color-surface-alt),
+    filled-label-text-color:               var(--color-text-muted),
+    filled-hover-label-text-color:         var(--color-text-muted),
+    filled-focus-label-text-color:         var(--color-text-muted),
+    filled-input-text-color:               var(--color-text),
+    filled-input-text-placeholder-color:   var(--color-text-muted),
+    filled-active-indicator-color:         var(--color-text-muted),
+    filled-hover-active-indicator-color:   var(--color-text-muted),
+    filled-active-indicator-height:        0,
+    filled-focus-active-indicator-height:  0,
+    filled-container-shape:                12px,
+    hover-state-layer-opacity:             0,
 
-    container-height:                32px,
-    container-vertical-padding:       8px,
+    container-height:           32px,
+    container-vertical-padding: 8px,
   ));
-}
-.mdc-text-field--filled {
-  border-bottom-left-radius: 12px !important;
-  border-bottom-right-radius: 12px !important;
-  border: #e1e7ef 2px solid !important;
-}
 
-/* Slide toggle — compact, no icon, white handle on #9facc1 track */
-:root {
   @include mat.slide-toggle-overrides((
-    track-height:                    24px,
-    track-width:                     44px,
-    handle-height:                   16px,
-    with-icon-handle-size:           16px,
-    pressed-handle-size:             16px,
+    track-height:          24px,
+    track-width:           44px,
+    handle-height:         16px,
+    with-icon-handle-size: 16px,
+    pressed-handle-size:   16px,
 
-    selected-track-color:            #9facc1,
-    unselected-track-color:          #9facc1,
-    selected-hover-track-color:      #8d9aaf,
-    unselected-hover-track-color:    #8d9aaf,
-    selected-focus-track-color:      #9facc1,
-    unselected-focus-track-color:    #9facc1,
-    selected-pressed-track-color:    #9facc1,
-    unselected-pressed-track-color:  #9facc1,
+    selected-track-color:           #9facc1,
+    unselected-track-color:         #9facc1,
+    selected-hover-track-color:     #8d9aaf,
+    unselected-hover-track-color:   #8d9aaf,
+    selected-focus-track-color:     #9facc1,
+    unselected-focus-track-color:   #9facc1,
+    selected-pressed-track-color:   #9facc1,
+    unselected-pressed-track-color: #9facc1,
 
-    track-outline-width:             0,
-    track-outline-color:             transparent,
+    track-outline-width: 0,
+    track-outline-color: transparent,
 
     selected-handle-color:           white,
     unselected-handle-color:         white,
@@ -190,43 +198,105 @@ html {
   ));
 }
 
+// ══════════════════════════════════════════════════════════════════════
+// 3b. Per-Component Customizations — Dark mode overrides
+//     Re-declare all color tokens inside body.dark so var(--color-*)
+//     substitutions are evaluated in the dark context (#1e293b, etc.)
+//     rather than the :root/html context (#ffffff, etc.).
+//     Dimension/shape tokens are omitted — they're mode-independent.
+// ══════════════════════════════════════════════════════════════════════
+
+body.dark {
+  @include mat.table-overrides((
+    background-color:          var(--color-surface),
+    row-item-label-text-color: var(--color-text),
+    row-item-outline-color:    var(--color-border),
+    header-headline-color:     var(--color-text-muted),
+  ));
+
+  @include mat.paginator-overrides((
+    container-background-color: var(--color-surface),
+    container-text-color:       var(--color-text),
+    enabled-icon-color:         var(--color-text-muted),
+  ));
+
+  @include mat.dialog-overrides((
+    container-color:       var(--color-surface),
+    subhead-color:         var(--color-text),
+    supporting-text-color: var(--color-text-muted),
+  ));
+
+  @include mat.chips-overrides((
+    label-text-color: var(--color-text),
+    outline-color:    var(--color-border),
+  ));
+
+  @include mat.form-field-overrides((
+    outlined-label-text-color:             var(--color-text-muted),
+    outlined-hover-label-text-color:       var(--color-text-muted),
+    outlined-focus-label-text-color:       var(--color-primary),
+    outlined-input-text-color:             var(--color-text),
+    outlined-input-text-placeholder-color: var(--color-text-muted),
+    outlined-outline-color:                var(--color-border),
+    outlined-hover-outline-color:          var(--color-border),
+    outlined-focus-outline-color:          var(--color-text-muted),
+
+    filled-container-color:                var(--color-surface-alt),
+    filled-label-text-color:               var(--color-text-muted),
+    filled-hover-label-text-color:         var(--color-text-muted),
+    filled-focus-label-text-color:         var(--color-text-muted),
+    filled-input-text-color:               var(--color-text),
+    filled-input-text-placeholder-color:   var(--color-text-muted),
+    filled-active-indicator-color:         var(--color-text-muted),
+    filled-hover-active-indicator-color:   var(--color-text-muted),
+  ));
+}
+
 /* Icon hiding cannot be done via tokens — requires a selector */
 .mat-mdc-slide-toggle .mdc-switch__icon { display: none; }
 
-/*
- * Button variants — M3 pattern (color input is M2-only).
- * Scope mat.button-overrides() to a class instead of :root so only
- * buttons carrying that class get the overridden tokens.
- * Use the structural attribute (mat-flat-button / mat-stroked-button)
- * to pick the shape; use the variant class to pick the color.
- *
- * Example usage:
- *   <button mat-flat-button    class="btn-danger">Delete</button>   ← filled red
- *   <button mat-stroked-button class="btn-danger">Delete</button>   ← outlined red
- */
+/* Filled text-field bottom corners: MDC hardcodes square bottom, override required */
+.mdc-text-field--filled {
+  border-bottom-left-radius:  12px !important;
+  border-bottom-right-radius: 12px !important;
+  border: var(--color-border) 2px solid !important;
+}
+
+
+// ══════════════════════════════════════════════════════════════════════
+// 4. Button Variants — M3 pattern (color= input is M2-only, no-op in M3)
+//
+//    Scope mat.button-overrides() to a CSS class so only buttons
+//    carrying that class receive the overrides. Structural attribute
+//    (mat-flat-button / mat-stroked-button) picks shape; variant class
+//    picks color.
+//
+//    Usage:
+//      <button mat-flat-button    class="btn-danger">Delete</button>
+//      <button mat-stroked-button class="btn-danger">Delete</button>
+// ══════════════════════════════════════════════════════════════════════
+
 .btn-danger {
   @include mat.button-overrides((
-    /* filled (mat-flat-button) */
-    filled-container-color:   #dc2626,
-    filled-label-text-color:  #ffffff,
-    filled-state-layer-color: #ffffff,
-    /* outlined (mat-stroked-button) */
+    // filled (mat-flat-button)
+    filled-container-color:    #dc2626,
+    filled-label-text-color:   #ffffff,
+    filled-state-layer-color:  #ffffff,
+    filled-ripple-color:       #ffffff,
+    // outlined (mat-stroked-button)
     outlined-outline-color:    #dc2626,
     outlined-label-text-color: #dc2626,
     outlined-state-layer-color: #dc2626,
-    outlined-ripple-color:     #dc26263b,
+    outlined-ripple-color:     #dc262617,
   ));
 }
+
+/* Neutral/muted button — CSS vars adapt automatically to dark mode */
 .btn-muted {
   @include mat.button-overrides((
-    /* filled (mat-flat-button) */
-    filled-container-color:   #dc2626,
-    filled-label-text-color:  #485468,
-    filled-state-layer-color: #ffffff,
-    /* outlined (mat-stroked-button) */
-    outlined-outline-color:    #94a2b8,
-    outlined-label-text-color: #485468,
-    outlined-state-layer-color: #94a2b8,
-    outlined-ripple-color:     #94a2b83b,
+    outlined-outline-color:     var(--color-border),
+    outlined-label-text-color:  var(--color-text-muted),
+    outlined-state-layer-color: var(--color-text-muted),
+    outlined-ripple-color:      var(--color-text-muted),
   ));
 }
