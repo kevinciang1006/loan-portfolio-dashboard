@@ -64,3 +64,39 @@ export interface LoanTypeStat {
   type: LoanType;
   count: number;
 }
+
+/**
+ * Full dashboard payload returned by a single GET /api/dashboard?q=...
+ *
+ * The backend (or BFF) aggregates everything the dashboard page needs into
+ * one response. The frontend is a thin renderer — it receives this object
+ * and feeds each slice to the appropriate component.
+ *
+ * The `q` query param is passed by the frontend on every search; the backend
+ * filters loans and recomputes the KPIs so all cards and the chart stay in sync.
+ *
+ * Trend fields are period-over-period deltas computed server-side (e.g.
+ * current month vs previous month). They are not affected by the search query.
+ */
+export interface PortfolioDashboard {
+  summary: {
+    /** Number of loans matching the current search query. */
+    totalLoans: number;
+    activeLoans: number;
+    /** Default rate as a percentage, e.g. 2.4 means 2.4%. */
+    defaultRate: number;
+    /** Average loan amount in dollars (raw number — frontend formats display). */
+    avgLoanSize: number;
+    /** Full portfolio count (unfiltered) — used by the chart coverage percentage. */
+    totalPortfolioCount: number;
+    // Period-over-period deltas — positive = growth, negative = decline
+    totalLoansTrend: number;
+    activeLoansTrend: number;
+    defaultRateTrend: number;
+    avgLoanSizeTrend: number;
+  };
+  /** Type distribution for the doughnut chart, scoped to the search query. */
+  loanTypeStats: LoanTypeStat[];
+  /** Loan records for the table, filtered by the search query. */
+  loans: Loan[];
+}

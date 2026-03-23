@@ -6,18 +6,30 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../components/confirm-dialog/confirm-dialog.component';
 import { LoanChartComponent } from '../../components/loan-chart/loan-chart.component';
 import { LoanTableComponent } from '../../components/loan-table/loan-table.component';
 import { SummaryCardComponent } from '../../components/summary-card/summary-card.component';
-import { Loan, LoanType, LoanTypeStat, LOAN_TYPE_CONFIG } from '../../models/loan.model';
+import { Loan, LoanTypeStat, PortfolioDashboard } from '../../models/loan.model';
 import { LoanService } from '../../services/loan.service';
+
+const EMPTY_DASHBOARD: PortfolioDashboard = {
+  summary: {
+    totalLoans: 0, activeLoans: 0, defaultRate: 0, avgLoanSize: 0,
+    totalPortfolioCount: 0,
+    totalLoansTrend: 0, activeLoansTrend: 0, defaultRateTrend: 0, avgLoanSizeTrend: 0,
+  },
+  loanTypeStats: [] as LoanTypeStat[],
+  loans: [] as Loan[],
+};
 
 @Component({
   selector: 'app-dashboard',
@@ -42,69 +54,47 @@ export class DashboardComponent {
   readonly searchQuery = signal('');
   readonly isDark = signal(false);
   readonly isLoading = signal(true);
-  readonly localLoans = signal<Loan[]>([]);
 
-  readonly filteredLoans = computed(() => {
-    const q = this.searchQuery().toLowerCase();
-    const loans = this.localLoans();
-    if (!q) return loans;
-    return loans.filter(
-      (l) =>
-        l.borrower.toLowerCase().includes(q) ||
-        l.id.toLowerCase().includes(q)
-    );
-  });
+  /**
+   * Tracks IDs deleted client-side so the row disappears immediately
+   * without waiting for a re-fetch (optimistic update pattern).
+   */
+  readonly deletedIds = signal(new Set<string>());
 
-  readonly totalLoans = computed(() => this.filteredLoans().length);
-
-  readonly activeLoans = computed(
-    () => this.filteredLoans().filter((l) => l.status === 'active').length
+  /**
+   * Single API call: search query → PortfolioDashboard.
+   *
+   * toObservable watches the searchQuery signal, debounces user keystrokes
+   * at 300 ms, then switchMaps to getDashboard() so in-flight requests are
+   * automatically cancelled when a newer query arrives.
+   *
+   * To swap to a real backend, change getDashboard() in LoanService —
+   * this component does not need to change.
+   */
+  private readonly dashboard$ = toObservable(this.searchQuery).pipe(
+    debounceTime(300),
+    distinctUntilChanged(),
+    tap(() => this.isLoading.set(true)),
+    switchMap(q => this.loanService.getDashboard(q)),
+    tap(() => this.isLoading.set(false)),
   );
 
-  readonly defaultRate = computed(() => {
-    const loans = this.filteredLoans();
-    if (!loans.length) return 0;
-    return (
-      Math.round(
-        (loans.filter((l) => l.status === 'default').length / loans.length) *
-          100 *
-          10
-      ) / 10
-    );
-  });
+  readonly dashboard = toSignal(this.dashboard$, { initialValue: EMPTY_DASHBOARD });
 
-  readonly avgLoanSize = computed(() => {
-    const loans = this.filteredLoans();
-    if (!loans.length) return 0;
-    return Math.round(
-      loans.reduce((s, l) => s + l.amount, 0) / loans.length
-    );
-  });
-
+  /** Frontend formatting of the raw avgLoanSize number from the API. */
   readonly avgLoanSizeFormatted = computed(() => {
-    const v = this.avgLoanSize();
+    const v = this.dashboard().summary.avgLoanSize;
     if (v >= 1_000_000) return '$' + (v / 1_000_000).toFixed(1) + 'M';
     if (v >= 1_000)     return '$' + (v / 1_000).toFixed(1) + 'k';
     return '$' + v;
   });
 
-  readonly chartData = computed<LoanTypeStat[]>(() => {
-    const loans = this.filteredLoans();
-    // Object.keys preserves the declaration order in LOAN_TYPE_CONFIG,
-    // so chart order is controlled by the config, not this component.
-    return (Object.keys(LOAN_TYPE_CONFIG) as LoanType[]).map(type => ({
-      type,
-      count: loans.filter(l => l.type === type).length,
-    }));
-  });
+  /** Loans from the API minus any optimistic local deletions. */
+  readonly displayLoans = computed(() =>
+    this.dashboard().loans.filter(l => !this.deletedIds().has(l.id))
+  );
 
   constructor() {
-    // Load loans from service — swap getLoans() implementation for real HTTP
-    this.loanService.getLoans().subscribe((loans) => {
-      this.localLoans.set(loans);
-      this.isLoading.set(false);
-    });
-
     const saved = localStorage.getItem('theme');
     if (saved === 'dark') {
       this.isDark.set(true);
@@ -123,8 +113,8 @@ export class DashboardComponent {
     );
     ref.afterClosed().subscribe((confirmed) => {
       if (!confirmed) return;
-      // Optimistic update: remove from UI immediately, then confirm with API
-      this.localLoans.update((loans) => loans.filter((l) => l.id !== loan.id));
+      // Optimistic: remove from view immediately; API call confirms server-side
+      this.deletedIds.update(ids => new Set([...ids, loan.id]));
       this.loanService.deleteLoan(loan.id).subscribe();
     });
   }

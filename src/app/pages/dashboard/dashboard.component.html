@@ -36,10 +36,10 @@
         </div>
       }
     } @else {
-      <app-summary-card icon="credit_card"    label="Total Loans"    [value]="totalLoans()"            [trend]="3.2" />
-      <app-summary-card icon="schedule"       label="Active Loans"   [value]="activeLoans()"           [trend]="1.8" />
-      <app-summary-card icon="change_history" label="Default Rate"   [value]="defaultRate()"           [trend]="-0.5" suffix="%" />
-      <app-summary-card icon="swap_vert"      label="Avg. Loan Size" [value]="avgLoanSizeFormatted()"  [trend]="4.1" />
+      <app-summary-card icon="credit_card"    label="Total Loans"    [value]="dashboard().summary.totalLoans"   [trend]="dashboard().summary.totalLoansTrend"  />
+      <app-summary-card icon="schedule"       label="Active Loans"   [value]="dashboard().summary.activeLoans"  [trend]="dashboard().summary.activeLoansTrend" />
+      <app-summary-card icon="change_history" label="Default Rate"   [value]="dashboard().summary.defaultRate"  [trend]="dashboard().summary.defaultRateTrend" suffix="%" />
+      <app-summary-card icon="swap_vert"      label="Avg. Loan Size" [value]="avgLoanSizeFormatted()"           [trend]="dashboard().summary.avgLoanSizeTrend" />
     }
   </div>
 
@@ -61,14 +61,17 @@
         </mat-form-field>
       </div>
 
-      <app-loan-table [loans]="filteredLoans()" (deleteLoan)="openDeleteDialog($event)" />
+      <app-loan-table [loans]="displayLoans()" (deleteLoan)="openDeleteDialog($event)" />
     </div>
 
     <!-- Right column -->
     <div class="flex flex-col gap-6">
 
       <!-- Chart -->
-      <app-loan-chart [data]="chartData()" [totalCount]="localLoans().length" />
+      <app-loan-chart
+        [data]="dashboard().loanTypeStats"
+        [totalCount]="dashboard().summary.totalPortfolioCount"
+      />
 
       <!-- Confirm Dialog Preview -->
       <div class="bg-surface border border-border rounded-2xl shadow-sm overflow-hidden">
